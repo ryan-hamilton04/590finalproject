@@ -1,0 +1,56 @@
+stages:
+  - test
+  - prod
+  - cleanup
+
+default:
+  image:
+    name: "registry.werf.io/werf/werf:2-stable"
+    pull_policy: always
+
+e2e-tests:
+  stage: test
+  image:
+    name: mcr.microsoft.com/playwright:v1.56.1-jammy
+    pull_policy: always
+  variables:
+    BASE_URL: http://server.smoothie-stand-prod.svc.cluster.local:3000
+  script:
+    - cd e2e
+    - npm ci
+    - BASE_URL=$BASE_URL npx playwright test tests/smoothie-complete-workflow.spec.ts --reporter=list
+  artifacts:
+    when: always
+    paths:
+      - e2e/playwright-report/
+      - e2e/test-results/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+prod:
+  stage: prod
+  script:
+    - source "$(werf ci-env gitlab --as-file)"
+    - werf cr login -u dennisquanduke -p $GITLAB_TOKEN registry.gitlab.com
+    - werf converge --repo registry.gitlab.com/dennisquanduke-group/dennisquanduke-project
+  environment:
+    name: prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"
+      when: manual
+
+images:cleanup:
+  stage: cleanup
+  script:
+    - werf cr login -u nobody -p "${WERF_IMAGES_CLEANUP_PASSWORD:?}" "${WERF_REPO:?}"
+    - werf cleanup
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule"
+
+host:cleanup:
+  stage: cleanup
+  script:
+    - werf host cleanup
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "schedule"

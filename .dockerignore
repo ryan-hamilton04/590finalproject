@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.nuxt
+.output
+.env
+.env.local
+.env.*.local
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+coverage
+.nyc_output
+.cache
+dist

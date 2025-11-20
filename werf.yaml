@@ -1,0 +1,6 @@
+configVersion: 1
+project: smoothie-stand
+---
+image: app
+dockerfile: Dockerfile
+context: .
