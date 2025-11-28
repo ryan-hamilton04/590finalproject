@@ -74,7 +74,7 @@ const columns: TableColumn<any>[] = [
   { accessorKey: '_id', header: 'ID' },
   { accessorKey: 'title', header: 'Title' },
   { id: 'dueDate', header: 'Due', accessorFn: (row: any) => formatDateToYMD(row.dueDate) },
-  { accessorKey: 'teacherId', header: 'Teacher' },
+  { accessorKey: 'teacherName', header: 'Teacher' },
 ]
 
 async function refresh() {
@@ -89,6 +89,6 @@ async function refresh() {
   }
 }
 
-// Load orders on page mount
+// Load assignments on page mount
 onMounted(refresh)
 </script>

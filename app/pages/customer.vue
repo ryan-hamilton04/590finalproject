@@ -64,7 +64,7 @@ const columns = [
   { accessorKey: '_id', header: 'ID' },
   { accessorKey: 'title', header: 'Title' },
   { id: 'dueDate', header: 'Due', accessorFn: (r: any) => formatDateToYMD(r.dueDate) },
-  { accessorKey: 'teacherId', header: 'Teacher' },
+  { accessorKey: 'teacherName', header: 'Teacher' },
   { id: 'submission', header: 'Your Status', accessorFn: (row: any) => row.submission?.status || 'need to do' },
   { id: 'action', header: 'Action' }
 ]
