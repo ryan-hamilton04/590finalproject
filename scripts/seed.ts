@@ -10,26 +10,21 @@ async function main() {
   try {
     const { students, teachers, assignments, submissions } = await getCollections()
 
-    // Teachers (two simple teachers)
-    const teacherAliceId = new ObjectId()
+    // Teachers: don't re-insert Ryan (already present). Create Bob in the same shape as Ryan.
     const teacherBobId = new ObjectId()
+    const now = new Date()
 
-    const teacherAlice = {
-      _id: teacherAliceId,
-      name: 'Ms. Alice',
-      email: 'alice@school.example',
-      githubId: 'alice-teacher',
-      createdAt: new Date()
-    }
     const teacherBob = {
       _id: teacherBobId,
-      name: 'Mr. Bob',
       email: 'bob@school.example',
-      githubId: 'bob-teacher',
-      createdAt: new Date()
+      avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?s=80&d=identicon',
+      createdAt: now,
+      name: 'Mr. Bob',
+      provider: 'github',
+      roles: ['student', 'teacher'],
+      updatedAt: now
     }
 
-    await upsertOne(teachers, { email: teacherAlice.email }, teacherAlice)
     await upsertOne(teachers, { email: teacherBob.email }, teacherBob)
 
     // Students
@@ -38,9 +33,9 @@ async function main() {
     const studentEmmaId = new ObjectId()
 
     const studentsToSeed = [
-      { _id: studentJaneId, name: 'Jane', email: 'jane@student.example', githubId: 'jane-student', createdAt: new Date() },
-      { _id: studentTomId, name: 'Tom', email: 'tom@student.example', githubId: 'tom-student', createdAt: new Date() },
-      { _id: studentEmmaId, name: 'Emma', email: 'emma@student.example', githubId: 'emma-student', createdAt: new Date() }
+      { _id: studentJaneId, name: 'Jane', email: 'jane@student.example', avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?s=80&d=identicon', provider: 'gitlab', roles: ['student'], createdAt: new Date(), updatedAt: new Date() },
+      { _id: studentTomId, name: 'Tom', email: 'tom@student.example', avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000001?s=80&d=identicon', provider: 'gitlab', roles: ['student'], createdAt: new Date(), updatedAt: new Date() },
+      { _id: studentEmmaId, name: 'Emma', email: 'emma@student.example', avatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000002?s=80&d=identicon', provider: 'gitlab', roles: ['student'], createdAt: new Date(), updatedAt: new Date() }
     ]
 
     for (const s of studentsToSeed) {
@@ -56,7 +51,7 @@ async function main() {
       _id: assignment1Id,
       title: 'Math: Multiplication Practice',
       description: 'Complete the multiplication worksheet (times tables).',
-      teacherId: teacherAliceId,
+      teacherId: teacherBobId,
       createdAt: new Date(),
       dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days
     }
@@ -74,7 +69,7 @@ async function main() {
       _id: assignment3Id,
       title: 'Science: Plant Growth',
       description: 'Observe a plant for 1 week and note changes.',
-      teacherId: teacherAliceId,
+      teacherId: teacherBobId,
       createdAt: new Date(),
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
     }
