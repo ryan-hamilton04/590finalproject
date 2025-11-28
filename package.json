@@ -15,14 +15,17 @@
     "mongodb": "^6.3.0",
     "nuxt": "^4.2.0",
     "nuxt-auth-utils": "^0.5.25",
-    "typescript": "^5.9.2",
     "vue": "^3.5.22",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.51.0",
+    "@iconify-json/heroicons": "^1.2.3",
     "@iconify-json/lucide": "^1.2.71",
     "@iconify-json/simple-icons": "^1.2.56",
-    "tsx": "^4.20.6"
+    "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

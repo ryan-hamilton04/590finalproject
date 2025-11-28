@@ -1,5 +1,5 @@
 import { MongoClient, Db } from 'mongodb'
-import type { Customer, Order, Operator } from './data'
+import type { Student, Teacher, Assignment, Submission } from './data'
 
 let client: MongoClient | null = null
 let db: Db | null = null
@@ -10,7 +10,7 @@ export async function connectToMongo(): Promise<Db> {
   }
 
   const mongoUrl = process.env.MONGO_URL
-  const dbName = process.env.MONGO_DB_NAME || 'smoothie_stand'
+  const dbName = process.env.MONGO_DB_NAME || 'to_do_app'
 
   if (!mongoUrl) {
     throw new Error('MONGO_URL environment variable is required')
@@ -36,9 +36,13 @@ export async function getCollections() {
   const database = await connectToMongo()
 
   return {
-    customers: database.collection<Customer>('customers'),
-    orders: database.collection<Order>('orders'),
-    operators: database.collection<Operator>('operators')
+    students: database.collection<Student>('students'),
+    // New name: assignments — the domain term for tasks given to students
+    assignments: database.collection<Assignment>('assignments'),
+    // Backwards-compatible alias for existing code that still uses "orders"
+    orders: database.collection<Assignment>('assignments'),
+    submissions: database.collection<Submission>('submissions'),
+    teachers: database.collection<Teacher>('teachers')
   }
 }
 

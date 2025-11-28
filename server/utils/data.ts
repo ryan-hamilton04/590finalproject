@@ -1,36 +1,40 @@
-export const possibleIngredients = [
-  "strawberry",
-  "milk",
-  "banana",
-]
-
-export interface DraftOrder {
-  customerId: string
-  ingredients: string[]
-}
-
 export interface StringIdDocument {
   _id: string
 }
 
-export interface Order extends DraftOrder, StringIdDocument {
-  state: "draft" | "queued" | "blending" | "done"
-  operatorId?: string
-}
-
-export interface Customer extends StringIdDocument {
+export interface Student extends StringIdDocument {
   name: string
 }
 
-export interface CustomerWithOrders extends Customer {
-  orders: Order[]
-}
-
-export interface OperatorWithOrders extends Operator {
-  orders: Order[]
-}
-
-export interface Operator {
+export interface Teacher {
   _id: string
   name: string
+}
+
+// TaskMate domain types
+export interface Assignment extends StringIdDocument {
+  title: string
+  description?: string
+  dueDate?: string // ISO date string
+  classId?: string
+  teacherId: string
+  createdAt?: string
+}
+
+export type SubmissionStatus = 'need to do' | 'in progress' | 'complete'
+
+export interface Submission extends StringIdDocument {
+  assignmentId: string
+  studentId: string
+  status: SubmissionStatus
+  submittedAt?: string
+  content?: string
+}
+
+export interface StudentWithSubmissions extends Student {
+  submissions: Submission[]
+}
+
+export interface TeacherWithAssignments extends Teacher {
+  assignments: Assignment[]
 }
