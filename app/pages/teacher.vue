@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import type { Assignment } from '../data'
 import { reactive } from 'vue'
+import { formatDateToYMD } from '../utils/format'
 
 const { user } = useUserSession()
 
@@ -60,14 +61,14 @@ const form = reactive({ title: '', description: '', dueDate: '' })
 const columns = [
   { accessorKey: '_id', header: 'ID' },
   { accessorKey: 'title', header: 'Title' },
-  { accessorKey: 'dueDate', header: 'Due' },
+  { id: 'dueDate', header: 'Due', accessorFn: (r: any) => formatDateToYMD(r.dueDate) },
   { id: 'submissions', header: 'Submissions', accessorFn: (r: any) => '' }
 ]
 
 const submissionColumns = [
   { accessorKey: 'studentId', header: 'Student' },
   { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'submittedAt', header: 'Submitted At' },
+  { id: 'submittedAt', header: 'Submitted At', accessorFn: (r: any) => formatDateToYMD(r.submittedAt) },
   { accessorKey: 'content', header: 'Content' }
 ]
 

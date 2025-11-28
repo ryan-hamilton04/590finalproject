@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import type { Assignment } from '../data'
 import { reactive } from 'vue'
+import { formatDateToYMD } from '../utils/format'
 
 const { user } = useUserSession()
 
@@ -62,7 +63,7 @@ const statuses = ['need to do', 'in progress', 'complete']
 const columns = [
   { accessorKey: '_id', header: 'ID' },
   { accessorKey: 'title', header: 'Title' },
-  { accessorKey: 'dueDate', header: 'Due' },
+  { id: 'dueDate', header: 'Due', accessorFn: (r: any) => formatDateToYMD(r.dueDate) },
   { accessorKey: 'teacherId', header: 'Teacher' },
   { id: 'submission', header: 'Your Status', accessorFn: (row: any) => row.submission?.status || 'need to do' },
   { id: 'action', header: 'Action' }

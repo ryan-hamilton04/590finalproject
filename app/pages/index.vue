@@ -59,6 +59,7 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui"
 import type { Assignment } from "../data"
+import { formatDateToYMD } from '../utils/format'
 
 definePageMeta({
   auth: false
@@ -72,7 +73,7 @@ const loading = ref(false)
 const columns: TableColumn<any>[] = [
   { accessorKey: '_id', header: 'ID' },
   { accessorKey: 'title', header: 'Title' },
-  { accessorKey: 'dueDate', header: 'Due' },
+  { id: 'dueDate', header: 'Due', accessorFn: (row: any) => formatDateToYMD(row.dueDate) },
   { accessorKey: 'teacherId', header: 'Teacher' },
 ]
 
