@@ -23,6 +23,17 @@ export default defineOAuthGitLabEventHandler({
         console.warn('Failed to fetch GitLab groups:', groupsResponse.status)
       }
 
+      const roles = determineRoles(groups)
+      // normalize roles: dedupe (case-insensitive) and preserve first-seen casing
+      const seen = new Set<string>()
+      const normalizedRoles: string[] = []
+      for (const r of roles) {
+        const lc = String(r).toLowerCase()
+        if (!seen.has(lc)) {
+          seen.add(lc)
+          normalizedRoles.push(r)
+        }
+      }
       await setUserSession(event, {
         user: {
           id: user.id.toString(),
@@ -31,7 +42,8 @@ export default defineOAuthGitLabEventHandler({
           avatar: user.avatar_url,
           provider: 'gitlab',
           groups: groups,
-          roles: determineRoles(groups)
+          roles: normalizedRoles,
+          mode: roles.includes('teacher') ? 'teacher' : 'student'
         },
         loggedInAt: Date.now()
       })
@@ -48,7 +60,8 @@ export default defineOAuthGitLabEventHandler({
           avatar: user.avatar_url,
           provider: 'gitlab',
           groups: [],
-          roles: ['user']
+          roles: ['student'],
+          mode: 'student'
         },
         loggedInAt: Date.now()
       })
@@ -63,10 +76,10 @@ export default defineOAuthGitLabEventHandler({
 })
 
 function determineRoles(groups: string[]): string[] {
-  const roles = ['customer'] // Default role
+  const roles = ['student']
 
-  if (groups.some(group => group.includes('smoothie-stand'))) {
-    roles.push('operator')
+  if (groups.some(group => group.includes('to-do-app'))) {
+    roles.push('teacher')
   }
 
   return roles

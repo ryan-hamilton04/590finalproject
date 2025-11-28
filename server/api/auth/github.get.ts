@@ -22,6 +22,17 @@ export default defineOAuthGitHubEventHandler({
         console.warn('Failed to fetch GitHub organizations:', orgsResponse.status)
       }
 
+      const roles = determineRoles(organizations)
+      // normalize roles: dedupe (case-insensitive) and preserve first-seen casing
+      const seen = new Set<string>()
+      const normalizedRoles: string[] = []
+      for (const r of roles) {
+        const lc = String(r).toLowerCase()
+        if (!seen.has(lc)) {
+          seen.add(lc)
+          normalizedRoles.push(r)
+        }
+      }
       await setUserSession(event, {
         user: {
           id: user.id.toString(),
@@ -30,7 +41,8 @@ export default defineOAuthGitHubEventHandler({
           avatar: user.avatar_url,
           provider: 'github',
           organizations,
-          roles: determineRoles(organizations)
+          roles: normalizedRoles,
+          mode: roles.includes('teacher') ? 'teacher' : 'student'
         },
         loggedInAt: Date.now()
       })
@@ -48,7 +60,8 @@ export default defineOAuthGitHubEventHandler({
           provider: 'github',
           organizations: [],
           teams: [],
-          roles: ['user']
+          roles: ['student'],
+          mode: 'student'
         },
         loggedInAt: Date.now()
       })
@@ -63,10 +76,10 @@ export default defineOAuthGitHubEventHandler({
 })
 
 function determineRoles(organizations: string[]): string[] {
-  const roles = ['customer'] // Default role
+  const roles = ['student']
 
-  if (organizations.some(org => org.toLowerCase().includes('smoothie-stand'))) {
-    roles.push('operator')
+  if (organizations.some(org => org.toLowerCase().includes('to-do-app') || org.toLowerCase().includes('todo-app') || org.toLowerCase().includes('to_do_app'))) {
+    roles.push('teacher')
   }
 
   return roles

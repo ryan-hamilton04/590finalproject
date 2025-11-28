@@ -22,6 +22,17 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const demoRoles = ['student', 'teacher']
+  const seen = new Set<string>()
+  const normalizedRoles: string[] = []
+  for (const r of demoRoles) {
+    const lc = String(r).toLowerCase()
+    if (!seen.has(lc)) {
+      seen.add(lc)
+      normalizedRoles.push(r)
+    }
+  }
+
   await setUserSession(event, {
     user: {
       id: 'cicd-test-123',
@@ -29,7 +40,8 @@ export default defineEventHandler(async (event) => {
       email: 'cicd-test@smoothiestand.local',
       avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff',
       provider: 'demo',
-      roles: ['user', 'operator']
+      roles: normalizedRoles,
+      mode: 'teacher'
     },
     loggedInAt: Date.now()
   })
