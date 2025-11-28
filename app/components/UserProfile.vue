@@ -31,7 +31,15 @@
             Profile
           </UButton>
 
-
+          <UButton
+            v-if="isTeacher"
+            variant="ghost"
+            class="w-full justify-start"
+            @click="switchMode"
+          >
+            <UIcon name="i-heroicons-arrows-right-left" class="w-4 h-4 mr-2" />
+            Switch Mode
+          </UButton>
 
           <div class="border-t border-gray-200 pt-1">
             <UButton
@@ -61,6 +69,25 @@ async function logout() {
     console.error('Logout error:', error)
     // Even if logout fails, redirect to clear UI state
     window.location.href = '/'
+  }
+}
+
+const isTeacher = computed(() => {
+  return (user.value as any)?.roles?.includes('teacher') || false
+})
+
+const otherModeLabel = computed(() => {
+  const mode = (user.value as any)?.mode || 'student'
+  return mode === 'teacher' ? 'student' : 'teacher'
+})
+
+async function switchMode() {
+  try {
+    await $fetch('/api/auth/switch-mode', { method: 'POST' })
+    // reload to refresh session-aware UI simply
+    window.location.reload()
+  } catch (err) {
+    console.error('Failed to switch mode:', err)
   }
 }
 </script>

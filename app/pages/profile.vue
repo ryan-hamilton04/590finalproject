@@ -40,7 +40,11 @@
             </UFormField>
 
             <UFormField label="Roles">
-              <UInput :value="(user as any)?.roles?.join(', ') || 'user'" readonly />
+              <UInput :value="displayedRoles" readonly />
+            </UFormField>
+
+            <UFormField label="Mode">
+              <UInput :value="(user as any)?.mode || 'student'" readonly />
             </UFormField>
 
             <UFormField label="Repository Access" v-if="(user as any)?.repository">
@@ -103,6 +107,20 @@ const formattedLoginTime = computed(() => {
     return new Date(loginTime).toLocaleString()
   }
   return 'Unknown'
+})
+
+const displayedRoles = computed(() => {
+  const raw: any[] = (user.value as any)?.roles || []
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const r of raw) {
+    const lc = String(r).toLowerCase()
+    if (!seen.has(lc)) {
+      seen.add(lc)
+      out.push(String(r))
+    }
+  }
+  return out.length ? out.join(', ') : 'user'
 })
 
 async function logout() {

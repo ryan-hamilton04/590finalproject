@@ -14,18 +14,18 @@
               Login
             </UButton>
 
-            <!-- Customer Button (only when logged in) -->
-            <UButton v-if="loggedIn" to="/customer" variant="ghost">
-              Customer
+            <!-- Student Button (only when logged in and not teacher mode) -->
+            <UButton v-if="loggedIn && !hasOperatorRole" to="/customer" variant="ghost">
+              Student
             </UButton>
 
-            <!-- Operator Button (only for users with operator role) -->
+            <!-- Teacher Button (only for users in teacher mode) -->
             <UButton
               v-if="hasOperatorRole"
-              to="/operator"
+              to="/teacher"
               variant="ghost"
             >
-              Operator
+              Teacher
             </UButton>
           </div>
 
@@ -43,6 +43,16 @@
 const { loggedIn, user } = useUserSession()
 
 const hasOperatorRole = computed(() => {
-  return (user.value as any)?.roles?.includes('operator') || false
+  const u = user.value as any
+  const roles: string[] = u?.roles || []
+  const mode: string = u?.mode || 'student'
+
+  // allow only teachers who are currently in teacher mode
+  return roles.includes('teacher') && mode === 'teacher'
+})
+
+const modeLabel = computed(() => {
+  const mode = (user.value as any)?.mode || 'student'
+  return mode.charAt(0).toUpperCase() + mode.slice(1)
 })
 </script>
