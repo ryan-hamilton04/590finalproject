@@ -48,6 +48,27 @@ export default defineOAuthGitLabEventHandler({
         loggedInAt: Date.now()
       })
 
+      // Upsert user into DB for tracking
+      try {
+        const { getCollections } = await import('../../utils/mongo')
+        const { students, teachers } = await getCollections()
+        const now = new Date().toISOString()
+        await students.updateOne(
+          { email: user.email },
+          { $set: { name: user.name, email: user.email, avatar: user.avatar_url, provider: 'gitlab', roles: normalizedRoles, mode: roles.includes('teacher') ? 'teacher' : 'student', updatedAt: now }, $setOnInsert: { createdAt: now } },
+          { upsert: true }
+        )
+        if (normalizedRoles.includes('teacher')) {
+          await teachers.updateOne(
+            { email: user.email },
+            { $set: { name: user.name, email: user.email, avatar: user.avatar_url, provider: 'gitlab', roles: normalizedRoles, updatedAt: now }, $setOnInsert: { createdAt: now } },
+            { upsert: true }
+          )
+        }
+      } catch (dbErr) {
+        console.warn('Failed to persist user to DB:', dbErr)
+      }
+
       return sendRedirect(event, '/')
     } catch (error) {
       console.error('Error fetching GitLab user data:', error)

@@ -46,6 +46,20 @@ export default defineEventHandler(async (event) => {
     loggedInAt: Date.now()
   })
 
+  // Persist demo user to DB for tests / CI visibility
+  try {
+    const { getCollections } = await import('../../utils/mongo')
+    const { students, teachers } = await getCollections()
+    const now = new Date().toISOString()
+    const email = 'cicd-test@smoothiestand.local'
+    await students.updateOne({ email }, { $set: { name: 'CI/CD Test', email, avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff', provider: 'demo', roles: normalizedRoles, mode: 'teacher', updatedAt: now }, $setOnInsert: { createdAt: now } }, { upsert: true })
+    if (normalizedRoles.includes('teacher')) {
+      await teachers.updateOne({ email }, { $set: { name: 'CI/CD Test', email, avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff', provider: 'demo', roles: normalizedRoles, updatedAt: now }, $setOnInsert: { createdAt: now } }, { upsert: true })
+    }
+  } catch (dbErr) {
+    console.warn('Failed to persist demo user to DB:', dbErr)
+  }
+
   return {
     success: true,
     data: {

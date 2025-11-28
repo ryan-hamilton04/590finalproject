@@ -47,6 +47,28 @@ export default defineOAuthGitHubEventHandler({
         loggedInAt: Date.now()
       })
 
+      // Upsert the user into the DB so we track their info and roles
+      try {
+        const { getCollections } = await import('../../utils/mongo')
+        const { students, teachers } = await getCollections()
+        const now = new Date().toISOString()
+        await students.updateOne(
+          { email: user.email },
+          { $set: { name: user.name || user.login, email: user.email, avatar: user.avatar_url, provider: 'github', roles: normalizedRoles, mode: roles.includes('teacher') ? 'teacher' : 'student', updatedAt: now }, $setOnInsert: { createdAt: now } },
+          { upsert: true }
+        )
+        if (normalizedRoles.includes('teacher')) {
+          await teachers.updateOne(
+            { email: user.email },
+            { $set: { name: user.name || user.login, email: user.email, avatar: user.avatar_url, provider: 'github', roles: normalizedRoles, updatedAt: now }, $setOnInsert: { createdAt: now } },
+            { upsert: true }
+          )
+        }
+      } catch (dbErr) {
+        // Don't block login if DB upsert fails; log and continue
+        console.warn('Failed to persist user to DB:', dbErr)
+      }
+
       return sendRedirect(event, '/')
     } catch (error) {
       console.error('Error fetching GitHub user data:', error)
