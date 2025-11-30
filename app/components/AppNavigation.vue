@@ -15,14 +15,15 @@
             </UButton>
 
             <!-- Student Button (only when logged in and not teacher mode) -->
-            <UButton v-if="loggedIn && !hasOperatorRole" to="/customer" variant="ghost">
+            <!-- Student dashboard link now points to adaptive home instead of legacy /customer -->
+            <UButton v-if="loggedIn && !hasOperatorRole" to="/" variant="ghost">
               Student
             </UButton>
 
             <!-- Teacher Button (only for users in teacher mode) -->
             <UButton
               v-if="hasOperatorRole"
-              to="/teacher"
+              to="/teacher/create"
               variant="ghost"
             >
               Teacher
