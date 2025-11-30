@@ -22,9 +22,48 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const { submissions } = await getCollections()
-    const rows = await submissions.find({ assignmentId }).toArray()
-    return rows
+    const { submissions, students, assignments } = await getCollections()
+    const assignment = await assignments.findOne({ _id: assignmentId })
+
+    // Load all students in this teacher's class (assigneeEmails if present else all teacher's students)
+    const allStudents = await students.find({ teacherId }).toArray()
+    const assigneeEmails: string[] = (assignment as any)?.assigneeEmails || allStudents.map(s => (s as any).email).filter(Boolean)
+    const emailSet = new Set(assigneeEmails)
+
+    const rowsRaw = await submissions.find({ assignmentId }).toArray()
+
+    // Map submissions by student email (support ObjectId studentId by reverse lookup)
+    const studentById: Record<string, any> = {}
+    const studentByEmail: Record<string, any> = {}
+    for (const s of allStudents) {
+      const ss: any = s
+      if (ss?._id) studentById[String(ss._id)] = ss
+      if (ss?.email) studentByEmail[String(ss.email)] = ss
+    }
+
+    const submissionsByEmail: Record<string, any> = {}
+    for (const sub of rowsRaw) {
+      const sid = (sub as any).studentId
+      const email = studentByEmail[String(sid)] ? studentByEmail[String(sid)].email : (typeof sid === 'string' ? sid : null)
+      if (email) submissionsByEmail[email] = sub
+    }
+
+    // Build grouped lists
+    const groups = { needToDo: [] as any[], inProgress: [] as any[], complete: [] as any[] }
+    for (const email of emailSet) {
+      const sub = submissionsByEmail[email]
+      const status = sub?.status || 'need to do'
+      const student = studentByEmail[email]
+      const entry = { email, name: student?.name || email, status }
+      if (status === 'complete') groups.complete.push(entry)
+      else if (status === 'in progress') groups.inProgress.push(entry)
+      else groups.needToDo.push(entry)
+    }
+
+    return {
+      assignmentId,
+      groups
+    }
   } catch (err) {
     throw createError({ statusCode: 500, statusMessage: 'Failed to fetch submissions' })
   }
