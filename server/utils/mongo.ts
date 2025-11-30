@@ -37,10 +37,7 @@ export async function getCollections() {
 
   return {
     students: database.collection<Student>('students'),
-    // New name: assignments — the domain term for tasks given to students
     assignments: database.collection<Assignment>('assignments'),
-    // Backwards-compatible alias for existing code that still uses "orders"
-    orders: database.collection<Assignment>('assignments'),
     submissions: database.collection<Submission>('submissions'),
     teachers: database.collection<Teacher>('teachers')
   }
