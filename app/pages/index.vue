@@ -186,7 +186,8 @@ async function refresh() {
       // Bust cache with timestamp to ensure students see latest edits; include mode & includePast toggles
       assignments.value = await $fetch<any[]>(`/api/student/assignments.week?mode=${mode.value}&includePast=${includePast.value}&ts=${Date.now()}`)
     } else {
-      assignments.value = await $fetch<any[]>('/api/assignments')
+      // No logged-in user: we cannot determine the student's classes, show an empty table
+      assignments.value = []
     }
   } catch (error) {
     console.error('Failed to fetch assignments:', error)
