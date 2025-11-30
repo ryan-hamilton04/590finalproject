@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
     user: {
       id: 'cicd-test-123',
       name: 'CI/CD Test',
-      email: 'cicd-test@smoothiestand.local',
+      email: 'cicd-test@demo.local',
       avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff',
       provider: 'demo',
       roles: normalizedRoles,
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
     const { getCollections } = await import('../../utils/mongo')
     const { students, teachers } = await getCollections()
     const now = new Date().toISOString()
-    const email = 'cicd-test@smoothiestand.local'
+    const email = 'cicd-test@demo.local'
     await students.updateOne({ email }, { $set: { name: 'CI/CD Test', email, avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff', provider: 'demo', roles: normalizedRoles, mode: 'teacher', updatedAt: now }, $setOnInsert: { createdAt: now } }, { upsert: true })
     if (normalizedRoles.includes('teacher')) {
       await teachers.updateOne({ email }, { $set: { name: 'CI/CD Test', email, avatar: 'https://ui-avatars.com/api/?name=CI%2FCD+Test&background=0ea5e9&color=fff', provider: 'demo', roles: normalizedRoles, updatedAt: now }, $setOnInsert: { createdAt: now } }, { upsert: true })
