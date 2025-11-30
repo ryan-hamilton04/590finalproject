@@ -15,7 +15,7 @@ spec:
         app: server
     spec:
       containers:
-      - image: lecture18-oauth-smoothie-stand
+      - image: to-do-app
         name: server
         ports:
         - containerPort: 3000
