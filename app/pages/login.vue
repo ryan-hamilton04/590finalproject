@@ -11,19 +11,6 @@
       </div>
 
       <div class="space-y-4">
-        <!-- GitHub OAuth -->
-        <UButton
-          @click="signInWithGitHub"
-          :loading="loading.github"
-          block
-          size="lg"
-          variant="outline"
-          class="flex items-center justify-center space-x-2"
-        >
-          <Icon name="i-simple-icons-github" class="w-5 h-5" />
-          <span>Continue with GitHub</span>
-        </UButton>
-
         <!-- GitLab OAuth -->
         <UButton
           @click="signInWithGitLab"
