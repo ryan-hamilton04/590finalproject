@@ -177,14 +177,25 @@ const teacherColumns: TableColumn<any>[] = [
 
 const columns = computed(() => isTeacher.value ? teacherColumns : studentColumns)
 
+async function fetchWithSession(url: string) {
+  if (process.server) {
+    // On server: forward cookies from incoming request
+    const headers = useRequestHeaders(['cookie'])
+    return await $fetch(url, { headers })
+  } else {
+    // On client: cookies are automatically sent by the browser
+    return await $fetch(url)
+  }
+}
+
 async function refresh() {
   loading.value = true
   try {
     if (isTeacher.value) {
-      assignments.value = await $fetch<any[]>('/api/teacher/assignments')
+      assignments.value = await fetchWithSession('/api/teacher/assignments')
     } else if (loggedIn.value) {
       // Bust cache with timestamp to ensure students see latest edits; include mode & includePast toggles
-      assignments.value = await $fetch<any[]>(`/api/student/assignments.week?mode=${mode.value}&includePast=${includePast.value}&ts=${Date.now()}`)
+      assignments.value = await fetchWithSession(`/api/student/assignments.week?mode=${mode.value}&includePast=${includePast.value}&ts=${Date.now()}`)
     } else {
       // No logged-in user: we cannot determine the student's classes, show an empty table
       assignments.value = []
