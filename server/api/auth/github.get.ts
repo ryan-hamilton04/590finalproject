@@ -5,9 +5,7 @@ export default defineOAuthGitHubEventHandler({
   },
   async onSuccess(event, { user, tokens }) {
     try {
-      // Ensure email is a non-null identifier for session and DB upserts
       const safeEmail = user.email ?? `${user.id}@users.noreply.github.com`
-      // Fetch user's organization memberships from GitHub API
       const orgsResponse = await fetch('https://api.github.com/user/orgs', {
         headers: {
           'X-GitHub-Api-Version': '2022-11-28',
@@ -25,7 +23,6 @@ export default defineOAuthGitHubEventHandler({
       }
 
       const roles = determineRoles(organizations)
-      // normalize roles: dedupe (case-insensitive) and preserve first-seen casing
       const seen = new Set<string>()
       const normalizedRoles: string[] = []
       for (const r of roles) {
@@ -50,7 +47,6 @@ export default defineOAuthGitHubEventHandler({
         loggedInAt: Date.now()
       })
 
-      // Upsert user into DB for tracking
       try {
         const { getCollections } = await import('../../utils/mongo')
         const { students, teachers } = await getCollections()
@@ -74,7 +70,6 @@ export default defineOAuthGitHubEventHandler({
       return sendRedirect(event, '/')
     } catch (error) {
       console.error('Error fetching GitHub user data:', error)
-      // Fallback without organizations/teams
       await setUserSession(event, {
         user: {
           id: user.id.toString(),
